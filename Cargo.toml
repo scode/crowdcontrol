@@ -1,0 +1,9 @@
+[package]
+
+name = "crowdcontrol"
+version = "0.0.0"
+authors = ["Peter Schuller <peter.schuller@infidyne.com>"]
+
+[lib]
+name = "crowdcontrol"
+path = "src/crowdcontrol/lib.rs"
