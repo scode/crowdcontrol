@@ -11,15 +11,15 @@ use std::sync::Mutex;
 /// A 64 bit signed counter.
 pub trait Counter<T: Int> {
     /// Increment the counter by the given delta.
-	///
-	/// The delta may be negative (for types T where this is possible).
+    ///
+    // The delta may be negative (for types T where this is possible).
     fn inc(&mut self, delta: T);
 
     /// Decrement the counter by the given delta.
-	///
-	/// The delta may be negative (for types T where this is possible).
-	///
-	/// dec(n) is equivalent of dec(-n)
+    ///
+    /// The delta may be negative (for types T where this is possible).
+    ///
+    /// dec(n) is equivalent of dec(-n)
     fn dec(&mut self, delta: T);
 }
 
@@ -36,12 +36,12 @@ pub struct SimpleCounter<T: Int> {
 
 impl<T: Int> Counter<T> for SimpleCounter<T> {
     fn inc(&mut self, delta: T) {
-		self.value = self.value + delta;
-	}
+        self.value = self.value + delta;
+    }
 
     fn dec(&mut self, delta: T) {
-		self.value = self.value - delta;
-	}
+        self.value = self.value - delta;
+    }
 }
 
 pub struct SharedCounter<T: Int + Send> {
@@ -50,16 +50,16 @@ pub struct SharedCounter<T: Int + Send> {
 
 impl<T: Int + Send> Counter<T> for SharedCounter<T> {
     fn inc(&mut self, delta: T) {
-		let mut value = self.value.lock().unwrap();
+        let mut value = self.value.lock().unwrap();
 
-		*value = *value + delta;
-	}
+        *value = *value + delta;
+    }
 
     fn dec(&mut self, delta: T) {
-		let mut value = self.value.lock().unwrap();
+        let mut value = self.value.lock().unwrap();
 
-		*value = *value - delta;
-	}
+        *value = *value - delta;
+    }
 }
 
 pub struct SimpleGauge<T> {
@@ -68,8 +68,8 @@ pub struct SimpleGauge<T> {
 
 impl<T> Gauge<T> for SimpleGauge<T> {
     fn set(&mut self, new_value: T) {
-		self.value = Some(new_value);
-	}
+        self.value = Some(new_value);
+    }
 }
 
 pub struct SharedGauge<T: Send> {
@@ -78,8 +78,8 @@ pub struct SharedGauge<T: Send> {
 
 impl<T: Send> Gauge<T> for SharedGauge<T> {
     fn set(&mut self, new_value: T) {
-		*self.value.lock().unwrap() = Some(new_value)
-	}
+        *self.value.lock().unwrap() = Some(new_value)
+    }
 }
 
 #[cfg(test)]
