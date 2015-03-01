@@ -2,6 +2,7 @@
 // XXX(scode): Consider whether we should expose the current values in the public traits.
 // XXX(scode): Missing histograms.
 // XXX(scode): Missing meters (questionable).
+// XXX(scode): Transition to lock-less where possible.
 
 use std::num::Int;
 use std::sync::Arc;
