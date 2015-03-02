@@ -113,7 +113,6 @@ mod test {
         use metrics::SharedCounter;
         use metrics::SimpleCounter;
 
-
         let mut counters = Vec::<Box<Counter<i64>>>::new();
         counters.push(Box::new(SimpleCounter { value: 0i64, }));
         counters.push(Box::new(SharedCounter { value: Arc::new(Mutex::new(0i64)) }));
