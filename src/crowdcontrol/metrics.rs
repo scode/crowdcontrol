@@ -1,5 +1,4 @@
 // XXX(scode): Consider supporting cloning/snapshotting metrics.
-// XXX(scode): Consider whether we should expose the current values in the public traits.
 // XXX(scode): Missing histograms.
 // XXX(scode): Missing meters (questionable).
 // XXX(scode): Transition to lock-less where possible.
@@ -21,13 +20,16 @@ pub trait Counter<T: Int> {
     ///
     /// dec(n) is equivalent of dec(-n)
     fn dec(&mut self, delta: T);
+
+    /// Return the current value of the counter.
+    fn get(&self) -> T;
 }
 
 /// A gauge has a single value at any given moment in time, and can only be
-/// updated by providing an entirely new value to replace the existing one
-/// (if any).
-pub trait Gauge<T> {
-    fn set(&mut self, value: T);
+/// updated by providing an entirely new value.
+pub trait Gauge<T: Clone> {
+    fn set(&mut self, value: Option<T>);
+    fn get(&self) -> Option<T>;
 }
 
 pub struct SimpleCounter<T: Int> {
@@ -41,6 +43,10 @@ impl<T: Int> Counter<T> for SimpleCounter<T> {
 
     fn dec(&mut self, delta: T) {
         self.value = self.value - delta;
+    }
+
+    fn get(&self) -> T {
+        self.value
     }
 }
 
@@ -60,15 +66,25 @@ impl<T: Int + Send> Counter<T> for SharedCounter<T> {
 
         *value = *value - delta;
     }
+
+    fn get(&self) -> T {
+        let value = self.value.lock().unwrap();
+
+        *value
+    }
 }
 
-pub struct SimpleGauge<T> {
+pub struct SimpleGauge<T: Clone> {
     value: Option<T>,
 }
 
-impl<T> Gauge<T> for SimpleGauge<T> {
-    fn set(&mut self, new_value: T) {
-        self.value = Some(new_value);
+impl<T: Clone> Gauge<T> for SimpleGauge<T> {
+    fn set(&mut self, new_value: Option<T>) {
+        self.value = new_value;
+    }
+
+    fn get(&self) -> Option<T> {
+        self.value.clone()
     }
 }
 
@@ -76,14 +92,46 @@ pub struct SharedGauge<T: Send> {
     value: Arc<Mutex<Option<T>>>,
 }
 
-impl<T: Send> Gauge<T> for SharedGauge<T> {
-    fn set(&mut self, new_value: T) {
-        *self.value.lock().unwrap() = Some(new_value)
+impl<T: Clone + Send> Gauge<T> for SharedGauge<T> {
+    fn set(&mut self, new_value: Option<T>) {
+        *self.value.lock().unwrap() = new_value;
+    }
+
+    fn get(&self) -> Option<T> {
+        (*self.value.lock().unwrap()).clone()
     }
 }
 
 #[cfg(test)]
 mod test {
-    // TODO(scode): Add tests.
+    use std::sync::Arc;
+    use std::sync::Mutex;
+
+    #[test]
+    fn test_counters() {
+        use metrics::Counter;
+        use metrics::SharedCounter;
+        use metrics::SimpleCounter;
+
+
+        let mut counters = Vec::<Box<Counter<i64>>>::new();
+        counters.push(Box::new(SimpleCounter { value: 0i64, }));
+        counters.push(Box::new(SharedCounter { value: Arc::new(Mutex::new(0i64)) }));
+
+        for mut c in counters {
+            assert_eq!(c.get(), 0);
+            c.inc(1);
+            assert_eq!(c.get(), 1);
+            c.dec(1);
+            assert_eq!(c.get(), 0);
+
+            c.dec(-1);
+            assert_eq!(c.get(), 1);
+            c.inc(-1);
+            assert_eq!(c.get(), 0);
+        }
+    }
+
+    // TODO(scode): Test gauge.
 }
 
