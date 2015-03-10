@@ -131,6 +131,21 @@ mod test {
         }
     }
 
-    // TODO(scode): Test gauge.
+    #[test]
+    fn test_gauge() {
+        use metrics::Gauge;
+        use metrics::SimpleGauge;
+        use metrics::SharedGauge;
+
+        let mut gauges = Vec::<Box<Gauge<i64>>>::new();
+        gauges.push(Box::new(SimpleGauge { value: Some(0i64), }));
+        gauges.push(Box::new(SharedGauge { value: Arc::new(Mutex::new(Some(0i64)))}));
+
+        for mut g in gauges {
+            assert_eq!(g.get(), Some(0));
+            g.set(Some(5));
+            assert_eq!(g.get(), Some(5))
+        }
+    }
 }
 
