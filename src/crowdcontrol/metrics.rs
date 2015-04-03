@@ -3,12 +3,12 @@
 // XXX(scode): Missing meters (questionable).
 // XXX(scode): Transition to lock-less where possible.
 
-use std::num::Int;
+use num::integer::Integer;
 use std::sync::Arc;
 use std::sync::Mutex;
 
 /// A 64 bit signed counter.
-pub trait Counter<T: Int> {
+pub trait Counter<T: Integer> {
     /// Increment the counter by the given delta.
     ///
     // The delta may be negative (for types T where this is possible).
@@ -32,11 +32,11 @@ pub trait Gauge<T: Clone> {
     fn get(&self) -> Option<T>;
 }
 
-pub struct SimpleCounter<T: Int> {
+pub struct SimpleCounter<T: Integer> {
     value: T,
 }
 
-impl<T: Int> Counter<T> for SimpleCounter<T> {
+impl<T: Integer + Copy> Counter<T> for SimpleCounter<T> {
     fn inc(&mut self, delta: T) {
         self.value = self.value + delta;
     }
@@ -50,11 +50,11 @@ impl<T: Int> Counter<T> for SimpleCounter<T> {
     }
 }
 
-pub struct SharedCounter<T: Int + Send> {
+pub struct SharedCounter<T: Integer + Send> {
     value: Arc<Mutex<T>>,
 }
 
-impl<T: Int + Send> Counter<T> for SharedCounter<T> {
+impl<T: Integer + Copy + Send> Counter<T> for SharedCounter<T> {
     fn inc(&mut self, delta: T) {
         let mut value = self.value.lock().unwrap();
 

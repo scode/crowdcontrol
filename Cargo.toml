@@ -7,3 +7,6 @@ authors = ["Peter Schuller <peter.schuller@infidyne.com>"]
 [lib]
 name = "crowdcontrol"
 path = "src/crowdcontrol/lib.rs"
+
+[dependencies]
+num = "*"
