@@ -1,7 +1,11 @@
+//! Metrics mechanisms intended to provide runtime visibility.
+
+// XXX(scode): Consider re-using third party metrics library.
 // XXX(scode): Consider supporting cloning/snapshotting metrics.
 // XXX(scode): Missing histograms.
 // XXX(scode): Missing meters (questionable).
 // XXX(scode): Transition to lock-less where possible.
+// XXX(scode): Support exposing metrics beyond the local process.
 
 use num::integer::Integer;
 use std::sync::Arc;

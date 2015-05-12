@@ -1,3 +1,11 @@
+//! Local persistent journal of records.
+//!
+//! This module contains abstractions intended to manage a local
+//! persistent (in the durable sense) journal, shielding the user
+//! from various file system related implementation details while
+//! exposing mechanisms and guarantees generally suitable to ensure
+//! correctness while allowing for decent performance.
+
 use std::cmp;
 
 /// A position in a journal, potentially identifying a particular
