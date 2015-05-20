@@ -47,7 +47,7 @@ pub type Duration = i64;
 
 /// Represents the result of an asynchronous computation that cannot fail (other
 /// than by panicing the process).
-pub trait Future<T: Copy + Send> {
+pub trait Future<T: Clone + Send> {
     /// Return Some(value) if the future has been satisfied, else None.
     fn get(self: &Self) -> Option<T>;
 
@@ -67,7 +67,7 @@ pub trait Future<T: Copy + Send> {
 ///
 /// XXX(scode): Not convinced we should extend Future, vs having a separate interface. One could
 ///             also make a case to conflate asynchronicity and failures in a single Future trait.
-pub trait FailableFuture<T: Copy + Send, E: Copy + Send> : Future<Result<T, E>> {
+pub trait FailableFuture<T: Clone + Send, E: Clone + Send> : Future<Result<T, E>> {
     /// Return Some(result) if the future has been satisfied, else None.
     fn fget(self: &Self) -> Option<Result<T, E>>;
 

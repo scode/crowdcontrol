@@ -40,17 +40,17 @@ pub struct SimpleCounter<T: Integer> {
     value: T,
 }
 
-impl<T: Integer + Copy> Counter<T> for SimpleCounter<T> {
+impl<T: Integer + Clone> Counter<T> for SimpleCounter<T> {
     fn inc(&mut self, delta: T) {
-        self.value = self.value + delta;
+        self.value = self.value.clone() + delta;
     }
 
     fn dec(&mut self, delta: T) {
-        self.value = self.value - delta;
+        self.value = self.value.clone() - delta;
     }
 
     fn get(&self) -> T {
-        self.value
+        self.value.clone()
     }
 }
 
@@ -58,23 +58,23 @@ pub struct SharedCounter<T: Integer + Send> {
     value: Arc<Mutex<T>>,
 }
 
-impl<T: Integer + Copy + Send> Counter<T> for SharedCounter<T> {
+impl<T: Integer + Clone + Send> Counter<T> for SharedCounter<T> {
     fn inc(&mut self, delta: T) {
         let mut value = self.value.lock().unwrap();
 
-        *value = *value + delta;
+        *value = value.clone() + delta;
     }
 
     fn dec(&mut self, delta: T) {
         let mut value = self.value.lock().unwrap();
 
-        *value = *value - delta;
+        *value = value.clone() - delta;
     }
 
     fn get(&self) -> T {
         let value = self.value.lock().unwrap();
 
-        *value
+        value.clone()
     }
 }
 
